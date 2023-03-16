@@ -1,0 +1,103 @@
+import math
+print('Note!!!\t The calculations below is for push-pull')
+Rt_v = int(input('Enter the value of Rt (Resistor at pin 6): '))
+Ct_v = float(input('Enter the value of Ct (Capacior at pin 5): '))
+Ct_Value = input('is the capacitor value in nf or uf? ').lower()
+
+if Ct_Value == 'nf':
+    Ct_v = Ct_v * 10**-9
+elif Ct_Value == 'uf':
+    Ct_v = Ct_v * 10**-6
+else:
+    print('Enter a valid capacitance!!')
+
+a = Rt_v * Ct_v
+Total_Fosc = 1.1 / (a)
+freq_Ic = Total_Fosc / 2
+print(f'The frequency Total Frequency is {Total_Fosc} \nAnd in push pull mode is {freq_Ic}')
+
+print('\nBelow is for the dead time control\n value of Rs = 1k\n Since we need 25 - 100 % \\cycles')
+t = 1 / Total_Fosc
+Total_time = t * 100
+Cs = Total_time / 1000
+print('The value of Cs is', Cs)
+
+V_ref = input("\nEnter your Voltage reference value (use 5v as your refrence): ")
+I_sinc = 500 * 10**-6
+Error_voltage = 2.5
+if V_ref == '5v':
+    print('Error Voltage = 2.5\n Vref = 5v\nTherefore R1 = R2, ie R1 = 5k, R2 = 5k')
+    V_out = int(input('Enter output voltage of your converter: '))
+    I_out = int(input('Enter output current in amper: '))
+    I_swing = 1.5
+    V16 = 1
+else:
+    R1 = input('Enter R1: ')
+    R2 = input('Enter R2: ')
+    V_out = (V_ref * R2) / (R1 + R2)
+
+Rcd = V_out / 0.0005
+R22 = 2.5 / 0.0005
+R12 = Rcd - R22
+Rx = 500
+Ry = 50000
+
+Vo = Error_voltage * (1 + (R12 / R22))
+print('\nTotal resistance at pin 1 is ', Rcd)
+print('The value of R2 at pin 1 is', R22)
+print('The value of R1 at pin 1 is', R12, 'trim-pot')
+
+print('\nThis section is for Current sense!!\n Your R15a = 4k, and R15b = 1k\n Also Vref is 5v')
+
+Isc = I_out +(I_swing / 2)
+Rx = V16 / Isc
+
+print(f'The shunt resistor is {Rx} ohms')
+
+print('\n Transformer turns ratio...\n Use litz wire to minimize losses')
+Vin = int(input('Enter input Voltage: '))
+Sec_voltage = int(input('Enter the secondary voltage: '))
+T_power = int(input('Enter transformer power: '))
+max_T_current = T_power / Vin
+PP_current = max_T_current / 2
+f = Total_Fosc
+Bmax = 2000
+core_type = input('Enter the core type of your proposed transformer(EI core, EE core or toiroid)').lower()
+if core_type == 'EI':
+    L = float(input('Enter the length in mm: '))
+    B = float(input('Enter the breath in mm: '))
+    L = L / 10
+    B = B / 10
+    CSA = L * B
+elif core_type == 'EE':
+    L = float(input('Enter the length in mm: '))
+    B = float(input('Enter the breath in mm: '))
+    L = L / 10
+    B = B / 10
+    CSA = L * B
+else:
+    L = float(input('Enter the length in mm: '))
+    B = float(input('Enter the breath in mm: '))
+    L = L / 10
+    B = B / 10
+    CSA = L * B
+# Np / Vin... then multiply with output voltage to get your Ns... 
+# divide output voltage with Ns to get the number of places you will turn 
+# eg Vin = 380, Np = 3, Vin = 12...3/12 = 0.25...0.25 * 380 = 95... ie 95turns
+# 380 / 95 = 4..... 95 turns in 4 places
+Np = round(((Vin * 10**8) / 4*f*Bmax*CSA), 1)
+copper_CSA_Np = PP_current/ 5
+constant = Np / Vin
+Ns = Sec_voltage * constant
+Number_of_turn_section = Sec_voltage / Ns
+copper_CSA_Ns = round((T_power / Sec_voltage), 1)
+
+if copper_CSA_Ns in range(0,2):
+    copper_CSA_Ns = 0.5
+else:
+    copper_CSA_Ns = 1
+
+print(f'Number of primary turns is {Np} turns \n With a Copper coil Diameter of {copper_CSA_Np}')
+print(f'Number of secondary turns is {Ns} turns in {Number_of_turn_section} sections\n With a Copper diameter of {copper_CSA_Ns}')
+
+

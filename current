@@ -1,0 +1,4 @@
+import time
+localtme = time.asctime()
+str = "The current time is", localtime
+print(str)

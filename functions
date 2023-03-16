@@ -1,0 +1,12 @@
+def call_name(name):
+	print(f'Hello {name} you are a great man')
+
+def sum(a, b):
+	total = a + b
+	return total
+
+#def calculate_voltage(voltage):
+	
+
+call_name('osfoce')
+print(sum(2, 4))
